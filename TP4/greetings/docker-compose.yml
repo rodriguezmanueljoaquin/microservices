@@ -1,0 +1,39 @@
+version: '3.3'
+
+networks:
+  greetings:
+    internal: true
+    name: greetings
+
+services:
+  rabbitmq: 
+    image: rabbitmq:3-management-alpine
+    container_name: 'rabbitmq'
+    ports:
+        - 5672:5672
+        - 15672:15672
+    networks:
+      - greetings
+      - default
+  
+  service:
+    image: 'greetings-service:v1'
+    build:
+      context: ./service
+      dockerfile: ./Dockerfile
+    container_name: 'greetings-service'
+    networks:
+      - greetings
+    depends_on:
+      - rabbitmq
+
+  consumer:
+    image: 'greetings-consumer:v1'
+    build:
+      context: ./consumer
+      dockerfile: ./Dockerfile
+    container_name: 'greetings-consumer'
+    networks:
+      - greetings
+    depends_on:
+      - service

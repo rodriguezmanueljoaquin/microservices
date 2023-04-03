@@ -1,0 +1,70 @@
+version: '3.3'
+
+networks:
+  internal:
+    internal: true
+    name: internal
+  management:
+    internal: true
+    name: management
+
+services:
+  db:
+    image: postgres:14.1-alpine
+    environment:
+      POSTGRES_PASSWORD: p4ssw0rd
+      POSTGRES_USER: user
+      POSTGRES_DB: drupal
+    volumes:
+      - $PWD/db_vol:/var/lib/postgresql/data
+    networks:
+      - internal
+    ports:
+      - 5432:5432
+    restart: always
+
+  manager1:
+    image: drupal
+    volumes:
+      - $PWD/drp_vol/modules:/var/www/html/modules
+      - $PWD/drp_vol/profiles:/var/www/html/profiles
+      - $PWD/drp_vol/themes:/var/www/html/themes
+      - $PWD/drp_vol/sites:/var/www/html/sites
+    networks:
+      - internal
+      - management
+    ports:
+      - 8081:80
+    restart: always
+    depends_on:
+      - db
+
+  manager2:
+    image: drupal
+    volumes:
+      - $PWD/drp_vol/modules:/var/www/html/modules
+      - $PWD/drp_vol/profiles:/var/www/html/profiles
+      - $PWD/drp_vol/themes:/var/www/html/themes
+      - $PWD/drp_vol/sites:/var/www/html/sites
+    networks:
+      - internal
+      - management
+    ports:
+      - 8082:80
+    restart: always
+    depends_on:
+      - db
+
+  lb:
+    image: haproxy:alpine
+    volumes:
+      - $PWD/haproxy:/usr/local/etc/haproxy
+    networks:
+      - management
+      - default
+    ports:
+      - 8080:80
+    restart: always
+    depends_on:
+      - manager1
+      - manager2
