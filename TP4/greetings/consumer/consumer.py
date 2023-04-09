@@ -5,7 +5,6 @@ CONFIG = {
     'AMQP_URI': f'amqp://{environ["RABBIT_USER"]}:{environ["RABBIT_PASSWORD"]}@{environ["RABBIT_HOST"]}:{environ["RABBIT_PORT"]}/'
 }
 
-
 class Consumer:
     name = 'consumer_service'
 
@@ -14,7 +13,7 @@ class Consumer:
         self.rpc = rpc
     
     def say_hello(self, name):
-        response = self.rpc.greeting_service.hello.call_async(name=name)
+        self.response.append( self.rpc.greeting_service.hello.call_async( name=name ) )
 
     def get_response(self):
         return [ resp.result() for resp in self.response ]
