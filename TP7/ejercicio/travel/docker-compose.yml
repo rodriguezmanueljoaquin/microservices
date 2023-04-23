@@ -1,0 +1,57 @@
+version: "3.8"
+
+services:
+  gateway:
+    build:
+      context: ./gateway
+    env_file:
+      - gateway/gateway.env
+    ports:
+      - 8000:8000
+    networks:
+      - mq
+      - default
+
+  mq:
+    image: rabbitmq:3-management
+    networks:
+      - mq
+
+  trips:
+    build:
+      context: ./trips
+    env_file:
+      - trips/trips.env
+    networks:
+      - trips
+      - mq
+
+  airports:
+    build:
+      context: ./airports
+    env_file:
+      - airports/airports.env
+    networks:
+      - airports
+      - mq
+
+  redis-trips:
+    image: redis:7-alpine
+    networks:
+      - trips
+
+  redis-airports:
+    image: redis:7-alpine
+    networks:
+      - airports
+
+networks:
+  airports:
+    driver: bridge
+    internal: true
+  trips:
+    driver: bridge
+    internal: true
+  mq:
+    driver: bridge
+    internal: true
