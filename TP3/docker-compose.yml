@@ -22,6 +22,8 @@ services:
     ports:
       - 5432:5432
     restart: always
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready"]
 
   manager1:
     image: drupal
@@ -37,7 +39,8 @@ services:
       - 8081:80
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   manager2:
     image: drupal
@@ -53,7 +56,8 @@ services:
       - 8082:80
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   lb:
     image: haproxy:alpine
