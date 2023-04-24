@@ -9,4 +9,4 @@ RUN pip install -r requirements.txt
 
 COPY . .
 
-CMD ["nameko", "run", "--config", "config.yml", "airports"]
+ENTRYPOINT ["nameko", "run", "--config", "config.yml", "airports"]
